@@ -3,6 +3,8 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const chatRoutes = require('./src/routes/chatRoutes');
+const socketHandler = require('./src/socket/socketHandler');
 
 const app = express();
 const server = http.createServer(app);
@@ -26,15 +28,10 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Socket.io connection
-io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
-    });
-});
+socketHandler(io);
 
 // Make io accessible in routes
 app.set('io', io);
