@@ -1,3 +1,4 @@
+import { useNotification } from '../hooks/useNotification';
 import { useTheme } from '../context/ThemeContext';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -13,7 +14,8 @@ const Chat = () => {
     const [selectedConversation, setSelectedConversation] = useState(null); // currently open conversation
     const [users, setUsers] = useState([]); // list of users
     const [showUsers, setShowUsers] = useState(false); // whether to show user list
-    const { darkMode, toggleDarkMode } = useTheme();
+    const { darkMode, toggleDarkMode } = useTheme(); // dark mode toggle
+    const { sendNotification } = useNotification(); // notification hook
 
     // fetch conversations on mount
     useEffect(() => {
@@ -33,7 +35,16 @@ const Chat = () => {
                         : conv // Leave others unchanged
                     )
                 );
-            })
+
+                // Send browser notification if message is from another user
+                if (message.senderId !== user?.id) {
+                    sendNotification(
+                        `New message from ${message.sender?.username || 'Someone'}`, {
+                            body: message.content,
+                            tag: message.conversationId, // Prevents duplicate notifications
+                        });
+                }
+            });
 
             return () => {
                 socket.off('new-message'); // clean up when leaving
