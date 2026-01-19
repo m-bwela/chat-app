@@ -291,6 +291,8 @@ model Message {
 ## 👨‍💻 Author
 
 **m-bwela**
+- GitHub: [@m-bwela](https://github.com/m-bwela)
+
 
 ## 📄 License
 
