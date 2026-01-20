@@ -12,14 +12,24 @@ export const AuthProvider = ({ children }) => {
     // When app loads, check if user was already logged in
     useEffect(() => {
         const token = localStorage.getItem('token'); // check saved token
+        const minLoadTime = 3000; // Minimum loading time in ms (3 seconds)
+        const startTime = Date.now();
+        
+        const finishLoading = () => {
+            const elapsed = Date.now() - startTime;
+            const remainingTime = Math.max(0, minLoadTime - elapsed);
+            // Wait for remaining time before hiding loading screen
+            setTimeout(() => setLoading(false), remainingTime);
+        };
+        
         if (token) {
             // Verify token and fetch user data
             api.get('/auth/me')  // Ask server who I am?
                 .then((res) => setUser(res.data)) // Save user info
                 .catch(() => localStorage.removeItem('token')) // Invalid token, remove it
-                .finally(() => setLoading(false)); // Done checking
+                .finally(() => finishLoading()); // Done checking
         } else {
-            setLoading(false);
+            finishLoading();
         }
     }, []);
 
