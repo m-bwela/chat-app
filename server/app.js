@@ -15,12 +15,15 @@ const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
     process.env.CORS_ORIGIN,
+    'https://chat-app-sable-gamma-68.vercel.app',
 ].filter(Boolean);
+
+console.log('Allowed CORS origins:', allowedOrigins);
 
 const io = new Server(server, {
     cors: {
         origin: allowedOrigins,
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         credentials: true,
     },
 });
@@ -28,6 +31,7 @@ const io = new Server(server, {
 // Middleware
 app.use(cors({
     origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
 }));
 app.use(express.json());
