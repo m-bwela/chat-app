@@ -168,4 +168,35 @@ const updateAvatar = async (req, res) => {
     }
 }
 
-module.exports = { register, login, logout, getMe, updateAvatar };
+// Delete user account
+const deleteAccount = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        // Delete all messages sent by the user
+        await prisma.message.deleteMany({
+            where: { senderId: userId },
+        });
+
+        // Delete all conversation participations
+        await prisma.conversationParticipant.deleteMany({
+            where: { userId: userId },
+        });
+
+        // Delete the user
+        await prisma.user.delete({
+            where: { id: userId },
+        });
+
+        // Notify others that user is deleted
+        const io = req.app.get('io');
+        io.emit('user-deleted', { userId });
+
+        res.json({ message: 'Account deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete account' });
+    }
+};
+
+module.exports = { register, login, logout, getMe, updateAvatar, deleteAccount };
